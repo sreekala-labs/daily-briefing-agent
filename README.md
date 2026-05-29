@@ -17,7 +17,8 @@ Code Related:
 
 1. Using a python code
 2. As a SMTP Client I am using Brevo since they give 1 year of free emails to be sent out.
-3. Open AI for fetching data based on category. 
+3. Open AI for fetching data based on category.
+4. Cron Job which runs in your local laptop(Alternatives Launchd or Anacron). 
 
 Sample Output:
 
