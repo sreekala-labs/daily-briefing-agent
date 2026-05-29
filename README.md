@@ -22,7 +22,7 @@ Code Related:
 
 Sample Output:
 
-```
+
 -- Final Support Briefing ---
 Topic: Tech News May 2026
 ### Summary of Tech News (May 2026)
@@ -162,4 +162,3 @@ In May 2026, the landscape of system design is characterized by several emerging
 6. **Security and Privacy**: With increased data usage, ensuring privacy and designing secure systems is more important than ever. Developers must consider security measures like end-to-end encryption, identity and access management, and compliance with data protection regulations.
 
 These points should give developers a comprehensive understanding of what to focus on in the system design domain as of 2026. It is crucial to continuously update skills and knowledge to stay aligned with these evolving trends.
-```
