@@ -1,0 +1,11 @@
+
+Open the crontab editor:
+crontab -e
+
+
+Add the following line:
+0 8 * * * /usr/bin/python3 /Users/../../Morning\ Brief/briefing_agent.py
+
+Save and exit.
+
+This setup will send your daily morning brief using Brevo at 8 AM PST.
