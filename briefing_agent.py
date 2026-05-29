@@ -14,10 +14,9 @@ load_dotenv()
 client = OpenAI()
 
 def search_web(query):
-    print(f"--Agent is searching for : {query}")
-    search = DDGS().text(query, max_results=3)
+    print(f"--Agent is searching for: {query}")
+    search = DDGS().text(f"latest {query}", max_results=3)  # Add "latest" to the query
     return json.dumps(search)
-
 tools = [
     {
         "type": "function",
@@ -39,36 +38,16 @@ tools = [
 ]
 
 def run_support_brief(topic):
-    messages = [{
-        "role": "system",
-        "content": "You are a Senior Support Engineer. Your goal is to research a topic and find technical 'gotchas', API limitations, or common support issues. First, search for the topic. Then, summarize the findings for a developer."
-    },
-    {
-        "role": "user",
-        "content": f"Research the latest updates on: {topic}"
-    }]
-    
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=messages,
-        tools=tools,
-    )
-
-    tool_call = response.choices[0].message.tool_calls[0]
-    search_results = search_web(json.loads(tool_call.function.arguments)["query"])
-    messages.append(response.choices[0].message)
-    messages.append({
-        "role": "tool",
-        "tool_call_id": tool_call.id,
-        "content": search_results
-    })
-    
-    final_response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=messages
-    )
-    
-    return f"--- Final Support Briefing ---\nTopic: {topic}\n{final_response.choices[0].message.content}"
+    # Use DDG search directly for the topic
+    print(f"Generating briefing for: {topic}")
+    try:
+        search_results = search_web(topic)  # Fetch search results from DDG
+        results = json.loads(search_results)  # Parse the JSON response
+        # Format the results into a readable summary
+        summary = "\n".join([f"- {result['title']}: {result['href']}" for result in results[:3]])
+        return f"--- Support Briefing ---\nTopic: {topic}\n{summary}"
+    except Exception as e:
+        return f"--- Support Briefing ---\nTopic: {topic}\nError fetching data: {e}"
 
 def send_email(subject, body):
     brevo_api_key = os.getenv("BREVO_API_KEY")
@@ -92,31 +71,32 @@ def send_email(subject, body):
     api_instance = TransactionalEmailsApi(api_client)
     try:
         response = api_instance.send_transac_email(email)
-        print(f"Email sent! Message ID: {response['messageId']}")
+        # Print the response object to inspect its attributes
+        print(f"Email sent successfully! Response: {response}")
     except Exception as e:
         print(f"Error sending email: {e}")
 
 # Get current month and year
-current_month_year = datetime.now().strftime("%B %Y")
+current_day_month_year = datetime.now().strftime("%B %d, %Y")
 
 # List of topics for the briefing
 topics = [
-    f"Tech News {current_month_year}",
-    f"AI News {current_month_year}",
-    f"World News {current_month_year}",
-    f"Cricket News {current_month_year}",
-    f"Finance News {current_month_year}",
-    f"Stock Market News {current_month_year}",
+    f"Tech News {current_day_month_year}",
+    f"AI News {current_day_month_year}",
+    f"World News {current_day_month_year}",
+    f"Cricket News {current_day_month_year}",
+    f"Finance News {current_day_month_year}",
+    f"Stock Market News {current_day_month_year}",
     f"Puzzle of the Day from Google",
     f"Word of the Day from NYT",
-    f"Anything new in Software Industry {current_month_year}",
-    f"System Design {current_month_year}"
+    f"Anything new in Software Industry {current_day_month_year}",
+    f"System Design {current_day_month_year}"
 ]
 
 # Collect all briefings
 briefings = []
 for topic in topics:
-    briefings.append(run_support_brief(topic))
+    briefings.append(run_support_brief(topic))  # Use DDG search for each topic
 
 # Combine all briefings and send email
 email_body = "\n\n".join(briefings)
